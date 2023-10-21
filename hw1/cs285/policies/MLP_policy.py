@@ -124,7 +124,7 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         :return:
             action: sampled action(s) from the policy
         """
-        mean = self.mean_net(observation)
+        mean = self.mean_net(torch.tensor(observation,dtype=torch.float).to(ptu.device))
         std = torch.exp(self.logstd)
         action = torch.distributions.Normal(mean, std).sample()
         return action
@@ -138,7 +138,7 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         :return:
             dict: 'Training Loss': supervised learning loss
         """
-        loss = torch.nn.functional.mse_loss(self.forward(observations), actions)
+        loss = F.mse_loss(self.forward(observations), actions)
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()

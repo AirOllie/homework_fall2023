@@ -128,7 +128,7 @@ def run_training_loop(params):
         else:
             # DAGGER training from sampled data relabeled by expert
             assert params['do_dagger']
-            paths, envsteps_this_batch = utils.sample_trajectories(env,actor,params['train_batch_size'], params['ep_len'])
+            paths, envsteps_this_batch = utils.sample_trajectories(env,actor,params['batch_size'], params['ep_len'])
 
             # relabel the collected obs with actions from a provided expert policy
             if params['do_dagger']:
@@ -136,7 +136,7 @@ def run_training_loop(params):
 
                 new_path = []
                 for path in paths:
-                    path['action'] = expert_policy(path['observation'])
+                    path['action'] = expert_policy.get_action(path['observation'])
                     new_path.append(path)
                 paths = new_path
 
@@ -150,7 +150,8 @@ def run_training_loop(params):
         for _ in range(params['num_agent_train_steps_per_iter']):
 
           rand_indices = np.random.permutation(len(replay_buffer))[:params['train_batch_size']]
-          ob_batch, ac_batch = replay_buffer.obs[rand_indices], replay_buffer.acs[rand_indices]
+          ob_batch, ac_batch = torch.tensor(replay_buffer.obs[rand_indices],requires_grad=True).to(ptu.device), \
+                              torch.tensor(replay_buffer.acs[rand_indices],requires_grad=True).to(ptu.device)
 
           # use the sampled data to train an agent
           train_log = actor.update(ob_batch, ac_batch)

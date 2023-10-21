@@ -31,10 +31,12 @@ def sample_trajectory(env, policy, max_path_length, render=False):
             else:
                 img = env.render(mode='single_rgb_array')
             image_obs.append(cv2.resize(img, dsize=(250, 250), interpolation=cv2.INTER_CUBIC))
-    
-        ac = policy(ob)
-        ac = ac[0]
 
+        ac = policy.forward(ob)
+        # ac = ac[0]
+        # ac = policy(ob)
+        ac = ac[0] if len(ac.shape)>1 else ac
+        ac = np.array(ac)
         next_ob, rew, done, _ = env.step(ac)
         
         steps += 1
