@@ -50,38 +50,44 @@ class AWACAgent(DQNAgent):
 
     def get_qvals(self, critic, obs, action):
         # get q-value for a given critic, obs, and action
+        # critic is a DQNCritic object, use qa_values(obs) to acquire q values given obs
+        q_value = critic.qa_values(obs)[action]
         return q_value
 
     def estimate_advantage(self, ob_no, ac_na, re_n, next_ob_no, terminal_n, n_actions=10):
         # TODO: Calculate and return the advantage (n sample estimate) 
-        # TODO convert to torch tensors
+        # TODO: convert to torch tensors
+        ob_no = ptu.from_numpy(ob_no)
+        ac_na = ptu.from_numpy(ac_na)
+        re_n = ptu.from_numpy(re_n)
+        next_ob_no = ptu.from_numpy(next_ob_no)
+        terminal_n = ptu.from_numpy(terminal_n)
 
         # HINT: store computed values in the provided vals list. You will use the average of this list for calculating the advantage.
         vals = []
         # TODO: get action distribution for current obs, you will use this for the value function estimate
-        dist = None
+        dist = self.awac_actor.forward(ob_no)
         # TODO Calculate Value Function Estimate given current observation
         # HINT: You may find it helpful to utilze get_qvals defined above
         if self.agent_params['discrete']:
-            for i in range(self.agent_params['ac_dim']):
-                pass
+            q_sa = self.exploitation_critic.qa_values(ob_no)
         else:
-            
             for _ in range(n_actions):
                 pass
-        v_pi = None
+        v_pi = torch.sum(q_sa * dist.probs, dim=-1)
 
         # TODO Calculate Q-Values
-        q_vals = None
+        q_vals = self.get_qvals(self.exploitation_critic, ob_no, ac_na)
         # TODO Calculate the Advantage using q_vals and v_pi  
-        return None
+        return q_vals - v_pi
 
     def train(self, ob_no, ac_na, re_n, next_ob_no, terminal_n):
         log = {}
 
         if self.t > self.num_exploration_steps:
             # TODO: After exploration is over, set the actor to optimize the extrinsic critic
-            #HINT: Look at method ArgMaxPolicy.set_critic
+            # HINT: Look at method ArgMaxPolicy.set_critic
+            
 
         if (self.t > self.learning_starts
                 and self.t % self.learning_freq == 0
