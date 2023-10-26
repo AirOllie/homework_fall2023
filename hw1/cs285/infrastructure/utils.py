@@ -36,7 +36,7 @@ def sample_trajectory(env, policy, max_path_length, render=False):
         # ac = ac[0]
         # ac = policy(ob)
         ac = ac[0] if len(ac.shape)>1 else ac
-        ac = np.array(ac)
+        ac = ptu.to_numpy(ac)
         next_ob, rew, done, _ = env.step(ac)
         
         steps += 1

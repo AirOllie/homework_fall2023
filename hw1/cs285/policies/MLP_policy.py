@@ -124,9 +124,11 @@ class MLPPolicySL(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         :return:
             action: sampled action(s) from the policy
         """
-        mean = self.mean_net(torch.tensor(observation,dtype=torch.float).to(ptu.device))
+        if type(observation)==np.ndarray:
+            observation = ptu.from_numpy(observation)
+        mean = self.mean_net(observation)
         std = torch.exp(self.logstd)
-        action = torch.distributions.Normal(mean, std).sample()
+        action = torch.distributions.Normal(mean, std).rsample()
         return action
 
     def update(self, observations, actions):

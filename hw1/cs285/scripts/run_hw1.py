@@ -150,8 +150,8 @@ def run_training_loop(params):
         for _ in range(params['num_agent_train_steps_per_iter']):
 
           rand_indices = np.random.permutation(len(replay_buffer))[:params['train_batch_size']]
-          ob_batch, ac_batch = torch.tensor(replay_buffer.obs[rand_indices],requires_grad=True).to(ptu.device), \
-                              torch.tensor(replay_buffer.acs[rand_indices],requires_grad=True).to(ptu.device)
+          ob_batch, ac_batch = ptu.from_numpy(replay_buffer.obs[rand_indices]), \
+                              ptu.from_numpy(replay_buffer.acs[rand_indices])
 
           # use the sampled data to train an agent
           train_log = actor.update(ob_batch, ac_batch)
