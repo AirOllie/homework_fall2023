@@ -150,7 +150,7 @@ class SoftActorCritic(nn.Module):
 
         # TODO(student): Implement the different backup strategies.
         if self.target_critic_backup_type == "doubleq":
-            next_qs = torch.stack(next_qs[1],next_qs[0])
+            next_qs = torch.stack((next_qs[1],next_qs[0]))
         elif self.target_critic_backup_type == "min":
             next_qs = torch.min(next_qs,dim=0).values
         elif self.target_critic_backup_type == "mean":

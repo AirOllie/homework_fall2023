@@ -47,6 +47,7 @@ def sample_trajectory(
         next_ob, rew, done, info = env.step(ac)
 
         steps += 1
+        print(steps)
         # only record a "done" into the replay buffer if not truncated
         done_not_truncated = (
             done and steps <= max_length and not info.get("TimeLimit.truncated", False)
@@ -62,7 +63,7 @@ def sample_trajectory(
         ob = next_ob  # jump to next timestep
 
         # end the rollout if the rollout ended
-        if done or steps > max_length:
+        if done or steps >= max_length:
             break
 
     episode_statistics = {"l": steps, "r": np.sum(rewards)}
@@ -110,6 +111,7 @@ def sample_n_trajectories(
     for i in range(ntraj):
         # collect rollout
         traj = sample_trajectory(env, policy, max_length, render)
+        print("{}/{} trajs sampled".format(i+1,ntraj))
         trajs.append(traj)
     return trajs
 
